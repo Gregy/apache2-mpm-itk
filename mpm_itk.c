@@ -333,14 +333,27 @@ static int itk_post_perdir_config(request_rec *r)
         return HTTP_INTERNAL_SERVER_ERROR;
       }
 
-      if (!(ent = getpwnam(wanted_username))) {
-        ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
-            "AssignUserIDExpr returned '%s', which is not a valid user name",
-            wanted_username);
-        return HTTP_INTERNAL_SERVER_ERROR;
+      if (wanted_username[0] == '#') {
+        apr_int64_t parsed_uid;
+        parsed_uid = apr_atoi64(&wanted_username[0]);
+        if (errno != 0) {
+          ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
+              "AssignUserIDExpr returned '%s', which cannot be parsed as a uid",
+              wanted_username);
+          return HTTP_INTERNAL_SERVER_ERROR;
+        }
+        wanted_uid = (uid_t)parsed_uid;
       }
+      else {
+        if (!(ent = getpwnam(wanted_username))) {
+          ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
+              "AssignUserIDExpr returned '%s', which is not a valid user name",
+              wanted_username);
+          return HTTP_INTERNAL_SERVER_ERROR;
+        }
 
-      wanted_uid = ent->pw_uid;
+        wanted_uid = ent->pw_uid;
+      }
     }
     if (dconf->gid_expr != NULL) {
       struct group *ent;
