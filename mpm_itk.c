@@ -338,7 +338,7 @@ static int itk_post_perdir_config(request_rec *r)
         parsed_uid = apr_atoi64(&wanted_username[1]);
         if (parsed_uid < ap_itk_min_uid || parsed_uid > ap_itk_max_uid) {
           ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
-              "AssignUserIDExpr returned '%s', which cannot be parsed as a uid in allowed range",
+              "AssignUserIDExpr returned '%s', which cannot be parsed as an uid in the allowed range",
               wanted_username);
           return HTTP_INTERNAL_SERVER_ERROR;
         }
