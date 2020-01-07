@@ -365,15 +365,26 @@ static int itk_post_perdir_config(request_rec *r)
             err);
         return HTTP_INTERNAL_SERVER_ERROR;
       }
-
-      if (!(ent = getgrnam(wanted_groupname))) {
-        ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
-            "AssignGroupIDExpr returned '%s', which is not a valid group name",
-            wanted_groupname);
-        return HTTP_INTERNAL_SERVER_ERROR;
+      if (wanted_groupname[0] == '#') {
+        apr_int64_t parsed_gid = -1;
+        parsed_gid = apr_atoi64(&wanted_groupname[1]);
+        if (parsed_gid < ap_itk_min_uid || parsed_gid > ap_itk_max_uid) {
+          ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
+              "AssignUserIDExpr returned '%s', which cannot be parsed as an gid in the allowed range",
+              wanted_groupname);
+          return HTTP_INTERNAL_SERVER_ERROR;
+        }
+        wanted_gid = (uid_t)parsed_gid;
       }
-
-      wanted_gid = ent->gr_gid;
+      else {
+        if (!(ent = getgrnam(wanted_groupname))) {
+          ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL, \
+              "AssignGroupIDExpr returned '%s', which is not a valid group name",
+              wanted_groupname);
+          return HTTP_INTERNAL_SERVER_ERROR;
+        }
+        wanted_gid = ent->gr_gid;
+      }
     }
 
     /* setuid() at least on the first request, but from there only if we need to change anything.
