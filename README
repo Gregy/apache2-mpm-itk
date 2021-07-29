@@ -1,3 +1,10 @@
+This is the apache2-mpm-itk module from http://mpm-itk.sesse.net/ with some minor patches implementing funcitonality I was missing. In addition to the upstream code this version can understand numerical user ids (you can use uids/gids which do not exists in systems passwd file)
+
+Credits should go to the original developer: Steinar H. Gunderson. I have attempted to submit the patch upstream but never got any response so I am publishing it here.
+
+
+Original README:
+
 This is a prerelease version of mpm-itk for Apache 2.4.7 or newer.
 2.4.6 or before will not work; for 2.2.x, there's an entirely different
 patch set (see http://mpm-itk.sesse.net/).
